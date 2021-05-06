@@ -1,8 +1,6 @@
 package game
 
 import (
-	"math/rand"
-
 	"github.com/athos/go-playground/reversi/board"
 )
 
@@ -18,7 +16,6 @@ func OpponentOf(turn Turn) Turn {
 	return Turn(board.OpponentOf(board.Cell(turn)))
 }
 
-type Strategy func(*board.Board, board.Cell) *board.Pos
 type Game struct {
 	board      *board.Board
 	turn       Turn
@@ -107,18 +104,4 @@ func (game *Game) Winner() Turn {
 	}
 	// Probably not happens
 	return Neither
-}
-
-func TopLeftPossibleStrategy(b *board.Board, turn board.Cell) *board.Pos {
-	if available := collectAvailablePositions(b, Turn(turn)); len(available) > 0 {
-		return &available[0]
-	}
-	return nil
-}
-
-func RandomPossibleStrategy(b *board.Board, turn board.Cell) *board.Pos {
-	if available := collectAvailablePositions(b, Turn(turn)); len(available) > 0 {
-		return &available[rand.Intn(len(available))]
-	}
-	return nil
 }
