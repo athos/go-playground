@@ -49,6 +49,14 @@ func NewBoard(rows, cols int) *Board {
 	}
 }
 
+func (b *Board) Rows() int {
+	return b.rows
+}
+
+func (b *Board) Cols() int {
+	return b.cols
+}
+
 func (b *Board) IsFull() bool {
 	return b.remaining == 0
 }
@@ -133,18 +141,13 @@ func (b *Board) MustPut(pos *Pos, cell Cell) {
 
 func (b *Board) String() string {
 	sb := new(strings.Builder)
-	sb.WriteString("  ")
-	for i := 0; i < b.cols; i++ {
-		sb.WriteRune(' ')
-		sb.WriteRune(rune('a' + i))
-	}
-	sb.WriteString("\n  +")
+	pos := Pos{0, 0}
+	sb.WriteRune('+')
 	for i := 0; i < b.cols; i++ {
 		sb.WriteString("-+")
 	}
-	pos := Pos{0, 0}
 	for ; pos.Y < b.rows; pos.Y++ {
-		sb.WriteString(fmt.Sprintf("\n%d |", pos.Y+1))
+		sb.WriteString("\n|")
 		for pos.X = 0; pos.X < b.cols; pos.X++ {
 			switch b.MustGetCell(&pos) {
 			case White:
@@ -157,7 +160,7 @@ func (b *Board) String() string {
 			sb.WriteRune('|')
 		}
 	}
-	sb.WriteString("\n  +")
+	sb.WriteString("\n+")
 	for i := 0; i < b.cols; i++ {
 		sb.WriteString("-+")
 	}

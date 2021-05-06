@@ -13,17 +13,16 @@ func TestBoardToString(t *testing.T) {
 	b.MustSetCell(&Pos{4, 3}, Black)
 	b.MustSetCell(&Pos{4, 4}, White)
 	actual := b.String()
-	expected := `   a b c d e f g h
-  +-+-+-+-+-+-+-+-+
-1 | | | | | | | | |
-2 | | | | | | | | |
-3 | | | | | | | | |
-4 | | | |o|x| | | |
-5 | | | |x|o| | | |
-6 | | | | | | | | |
-7 | | | | | | | | |
-8 | | | | | | | | |
-  +-+-+-+-+-+-+-+-+`
+	expected := `+-+-+-+-+-+-+-+-+
+| | | | | | | | |
+| | | | | | | | |
+| | | | | | | | |
+| | | |o|x| | | |
+| | | |x|o| | | |
+| | | | | | | | |
+| | | | | | | | |
+| | | | | | | | |
++-+-+-+-+-+-+-+-+`
 	assert.Equal(t, expected, actual)
 }
 

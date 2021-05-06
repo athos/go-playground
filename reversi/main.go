@@ -15,6 +15,19 @@ var (
 	validInputRE = regexp.MustCompile("^([a-h])([1-8])$")
 )
 
+func showBoard(b *board.Board) {
+	lines := strings.Split(b.String(), "\n")
+	fmt.Print("  ")
+	for i := 0; i < b.Cols(); i++ {
+		fmt.Printf(" %c", rune('a'+i))
+	}
+	fmt.Printf("\n  %s", lines[0])
+	for i, line := range lines[1 : len(lines)-1] {
+		fmt.Printf("\n%d %s", i+1, line)
+	}
+	fmt.Printf("\n  %s\n", lines[len(lines)-1])
+}
+
 func validateUserInput(b *board.Board, cell board.Cell, input string) (*board.Pos, error) {
 	match := validInputRE.FindAllStringSubmatch(input, -1)
 	if len(match) == 0 {
@@ -38,7 +51,7 @@ func userInputStrategy(b *board.Board, cell board.Cell) *board.Pos {
 		pos, err := validateUserInput(b, cell, input)
 		if err != nil {
 			fmt.Println()
-			fmt.Println(b.String())
+			showBoard(b)
 			fmt.Printf("[ERROR] %s\n", err.Error())
 			continue
 		}
@@ -82,7 +95,7 @@ func initGame(player board.Cell) *game.Game {
 func playGame(game *game.Game) {
 	for {
 		fmt.Println()
-		fmt.Println(game.BoardContent())
+		showBoard(game.Board())
 		if game.IsOver() {
 			return
 		}

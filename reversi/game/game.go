@@ -23,6 +23,10 @@ func NewGame(b *board.Board, turn board.Cell, strategies map[board.Cell]Strategy
 	}
 }
 
+func (game *Game) Board() *board.Board {
+	return game.board
+}
+
 func collectAvailablePositions(b *board.Board, cell board.Cell) []board.Pos {
 	ret := make([]board.Pos, 0)
 	b.ForEachPos(func(pos *board.Pos) {
@@ -31,10 +35,6 @@ func collectAvailablePositions(b *board.Board, cell board.Cell) []board.Pos {
 		}
 	})
 	return ret
-}
-
-func (game *Game) BoardContent() string {
-	return game.board.String()
 }
 
 func (game *Game) Step() bool {
