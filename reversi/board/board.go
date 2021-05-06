@@ -38,7 +38,7 @@ type Board struct {
 
 func NewBoard(rows, cols int) *Board {
 	cells := make([][]Cell, rows)
-	for i := 0; i < cols; i++ {
+	for i := 0; i < rows; i++ {
 		cells[i] = make([]Cell, cols)
 	}
 	return &Board{
