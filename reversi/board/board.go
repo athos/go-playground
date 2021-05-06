@@ -133,10 +133,10 @@ func (b *Board) MustPut(pos *Pos, cell Cell) {
 
 func (b *Board) String() string {
 	sb := new(strings.Builder)
-	sb.WriteString("   ")
+	sb.WriteString("  ")
 	for i := 0; i < b.cols; i++ {
-		sb.WriteRune(rune('a' + i))
 		sb.WriteRune(' ')
+		sb.WriteRune(rune('a' + i))
 	}
 	sb.WriteString("\n  +")
 	for i := 0; i < b.cols; i++ {
