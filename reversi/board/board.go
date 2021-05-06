@@ -95,7 +95,7 @@ func (b *Board) ForEachPos(f func(*Pos)) {
 
 func (b *Board) collectFlippables(pos *Pos, cell Cell) [][]Pos {
 	ret := make([][]Pos, 0)
-	for _, dir := range []struct{ dy, dx int }{
+	for _, dir := range []*struct{ dy, dx int }{
 		{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1},
 	} {
 		p := Pos{Y: pos.Y, X: pos.X}
@@ -133,33 +133,32 @@ func (b *Board) IsAvailable(pos *Pos, cell Cell) bool {
 func (b *Board) MustPut(pos *Pos, cell Cell) {
 	b.MustSetCell(pos, cell)
 	for _, chunk := range b.collectFlippables(pos, cell) {
-		for _, p := range chunk {
-			b.MustSetCell(&p, cell)
+		for i := range chunk {
+			b.MustSetCell(&chunk[i], cell)
 		}
 	}
 }
 
 func (b *Board) String() string {
 	sb := new(strings.Builder)
-	pos := Pos{0, 0}
 	sb.WriteRune('+')
 	for i := 0; i < b.cols; i++ {
 		sb.WriteString("-+")
 	}
-	for ; pos.Y < b.rows; pos.Y++ {
-		sb.WriteString("\n|")
-		for pos.X = 0; pos.X < b.cols; pos.X++ {
-			switch b.MustGetCell(&pos) {
-			case White:
-				sb.WriteRune('o')
-			case Black:
-				sb.WriteRune('x')
-			default:
-				sb.WriteRune(' ')
-			}
-			sb.WriteRune('|')
+	b.ForEachPos(func(pos *Pos) {
+		if pos.X == 0 {
+			sb.WriteString("\n|")
 		}
-	}
+		switch b.MustGetCell(pos) {
+		case White:
+			sb.WriteRune('o')
+		case Black:
+			sb.WriteRune('x')
+		default:
+			sb.WriteRune(' ')
+		}
+		sb.WriteRune('|')
+	})
 	sb.WriteString("\n+")
 	for i := 0; i < b.cols; i++ {
 		sb.WriteString("-+")

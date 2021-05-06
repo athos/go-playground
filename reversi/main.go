@@ -83,16 +83,16 @@ func wrapCPUStrategy(strategy game.Strategy) game.Strategy {
 
 func initGame(player game.Turn) *game.Game {
 	b := board.NewBoard(8, 8)
-	for _, c := range []struct {
-		pos  *board.Pos
+	for _, c := range []*struct {
+		pos  board.Pos
 		cell board.Cell
 	}{
-		{&board.Pos{X: 3, Y: 3}, board.Black},
-		{&board.Pos{X: 3, Y: 4}, board.White},
-		{&board.Pos{X: 4, Y: 3}, board.White},
-		{&board.Pos{X: 4, Y: 4}, board.Black},
+		{board.Pos{Y: 3, X: 3}, board.Black},
+		{board.Pos{Y: 3, X: 4}, board.White},
+		{board.Pos{Y: 4, X: 3}, board.White},
+		{board.Pos{Y: 4, X: 4}, board.Black},
 	} {
-		b.MustSetCell(c.pos, c.cell)
+		b.MustSetCell(&c.pos, c.cell)
 	}
 	opponent := game.OpponentOf(player)
 	strategies := map[game.Turn]game.Strategy{
