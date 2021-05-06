@@ -25,6 +25,7 @@ type Game struct {
 }
 
 type GameResult struct {
+	Winner Turn
 	Scores map[Turn]int
 	Skips  map[Turn]int
 }
@@ -89,12 +90,7 @@ func (game *Game) scores() map[Turn]int {
 	return ret
 }
 
-func (game *Game) Result() *GameResult {
-	scores := game.scores()
-	return &GameResult{Scores: scores, Skips: game.skips}
-}
-
-func (game *Game) Winner() Turn {
+func (game *Game) winner() Turn {
 	turn := game.turn
 	opponent := OpponentOf(turn)
 	switch {
@@ -114,4 +110,12 @@ func (game *Game) Winner() Turn {
 	}
 	// Probably not happens
 	return Neither
+}
+
+func (game *Game) Result() *GameResult {
+	return &GameResult{
+		Winner: game.winner(),
+		Scores: game.scores(),
+		Skips:  game.skips,
+	}
 }

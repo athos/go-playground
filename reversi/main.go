@@ -115,7 +115,7 @@ func showGameResult(g *game.Game, player game.Turn) {
 	result := g.Result()
 	fmt.Printf("You: %d (%d passes)\n", result.Scores[player], result.Skips[player])
 	fmt.Printf("CPU: %d (%d passes)\n", result.Scores[opponent], result.Skips[opponent])
-	winner := g.Winner()
+	winner := result.Winner
 	switch {
 	case winner == player:
 		fmt.Print("You win.")
