@@ -7,28 +7,29 @@ import (
 	"strings"
 	"time"
 
-	impl "github.com/athos/go-playground/reversi/impl"
+	"github.com/athos/go-playground/reversi/board"
+	"github.com/athos/go-playground/reversi/game"
 )
 
 var (
 	validInputRE = regexp.MustCompile("^([a-h])([1-8])$")
 )
 
-func validateUserInput(b *impl.Board, cell impl.Cell, input string) (*impl.Pos, error) {
+func validateUserInput(b *board.Board, cell board.Cell, input string) (*board.Pos, error) {
 	match := validInputRE.FindAllStringSubmatch(input, -1)
 	if len(match) == 0 {
 		return nil, fmt.Errorf("invalid format of hand: %s", input)
 	}
 
 	row, col := int(match[0][2][0]-'1'), int(match[0][1][0]-'a')
-	pos := &impl.Pos{Y: row, X: col}
-	if !b.IsAvailable(pos, cell) {
+	pos := &board.Pos{Y: row, X: col}
+	if !game.IsAvailable(b, pos, cell) {
 		return nil, fmt.Errorf("invalid position: %s", input)
 	}
 	return pos, nil
 }
 
-func userInputStrategy(b *impl.Board, cell impl.Cell) *impl.Pos {
+func userInputStrategy(b *board.Board, cell board.Cell) *board.Pos {
 	var input string
 	for {
 		fmt.Print("Your turn. Type in your hand (eg. e6): ")
@@ -45,8 +46,8 @@ func userInputStrategy(b *impl.Board, cell impl.Cell) *impl.Pos {
 	}
 }
 
-func wrapCPUStrategy(strategy impl.Strategy) impl.Strategy {
-	return func(b *impl.Board, c impl.Cell) *impl.Pos {
+func wrapCPUStrategy(strategy game.Strategy) game.Strategy {
+	return func(b *board.Board, c board.Cell) *board.Pos {
 		pos := strategy(b, c)
 		if pos == nil {
 			fmt.Println("CPU's turn has been skipped.")
@@ -57,30 +58,30 @@ func wrapCPUStrategy(strategy impl.Strategy) impl.Strategy {
 	}
 }
 
-func initGame(player impl.Cell) *impl.Game {
-	board := impl.NewBoard(8, 8)
-	opponent := impl.OpponentOf(player)
-	strategies := map[impl.Cell]impl.Strategy{
+func initGame(player board.Cell) *game.Game {
+	b := board.NewBoard(8, 8)
+	opponent := board.OpponentOf(player)
+	strategies := map[board.Cell]game.Strategy{
 		player:   userInputStrategy,
-		opponent: wrapCPUStrategy(impl.RandomPossibleStrategy),
+		opponent: wrapCPUStrategy(game.RandomPossibleStrategy),
 	}
-	game := impl.NewGame(board, player, strategies)
+	game := game.NewGame(b, player, strategies)
 
 	for _, c := range []struct {
-		pos  *impl.Pos
-		cell impl.Cell
+		pos  *board.Pos
+		cell board.Cell
 	}{
-		{&impl.Pos{X: 3, Y: 3}, impl.Black},
-		{&impl.Pos{X: 3, Y: 4}, impl.White},
-		{&impl.Pos{X: 4, Y: 3}, impl.White},
-		{&impl.Pos{X: 4, Y: 4}, impl.Black},
+		{&board.Pos{X: 3, Y: 3}, board.Black},
+		{&board.Pos{X: 3, Y: 4}, board.White},
+		{&board.Pos{X: 4, Y: 3}, board.White},
+		{&board.Pos{X: 4, Y: 4}, board.Black},
 	} {
 		game.Put(c.pos, c.cell)
 	}
 	return game
 }
 
-func playGame(game *impl.Game) {
+func playGame(game *game.Game) {
 	for {
 		fmt.Println()
 		fmt.Println(game.BoardContent())
@@ -91,8 +92,8 @@ func playGame(game *impl.Game) {
 	}
 }
 
-func showGameResult(game *impl.Game, player impl.Cell) {
-	opponent := impl.OpponentOf(player)
+func showGameResult(game *game.Game, player board.Cell) {
+	opponent := board.OpponentOf(player)
 	scores := game.Scores()
 	fmt.Printf("You: %d\n", scores[player])
 	fmt.Printf("CPU: %d\n", scores[opponent])
@@ -115,7 +116,7 @@ func prompt(msg string) (ret string) {
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	player := impl.White
+	player := board.White
 	for {
 		game := initGame(player)
 		playGame(game)

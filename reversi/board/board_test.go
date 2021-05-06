@@ -1,4 +1,4 @@
-package reversi
+package board
 
 import (
 	"testing"
