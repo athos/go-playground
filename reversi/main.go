@@ -23,7 +23,7 @@ func validateUserInput(b *board.Board, cell board.Cell, input string) (*board.Po
 
 	row, col := int(match[0][2][0]-'1'), int(match[0][1][0]-'a')
 	pos := &board.Pos{Y: row, X: col}
-	if !game.IsAvailable(b, pos, cell) {
+	if !b.IsAvailable(pos, cell) {
 		return nil, fmt.Errorf("invalid position: %s", input)
 	}
 	return pos, nil
@@ -60,13 +60,6 @@ func wrapCPUStrategy(strategy game.Strategy) game.Strategy {
 
 func initGame(player board.Cell) *game.Game {
 	b := board.NewBoard(8, 8)
-	opponent := board.OpponentOf(player)
-	strategies := map[board.Cell]game.Strategy{
-		player:   userInputStrategy,
-		opponent: wrapCPUStrategy(game.RandomPossibleStrategy),
-	}
-	game := game.NewGame(b, player, strategies)
-
 	for _, c := range []struct {
 		pos  *board.Pos
 		cell board.Cell
@@ -76,9 +69,14 @@ func initGame(player board.Cell) *game.Game {
 		{&board.Pos{X: 4, Y: 3}, board.White},
 		{&board.Pos{X: 4, Y: 4}, board.Black},
 	} {
-		game.Put(c.pos, c.cell)
+		b.MustSetCell(c.pos, c.cell)
 	}
-	return game
+	opponent := board.OpponentOf(player)
+	strategies := map[board.Cell]game.Strategy{
+		player:   userInputStrategy,
+		opponent: wrapCPUStrategy(game.RandomPossibleStrategy),
+	}
+	return game.NewGame(b, player, strategies)
 }
 
 func playGame(game *game.Game) {

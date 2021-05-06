@@ -85,6 +85,52 @@ func (b *Board) ForEachPos(f func(*Pos)) {
 	}
 }
 
+func (b *Board) collectFlippables(pos *Pos, cell Cell) [][]Pos {
+	ret := make([][]Pos, 0)
+	for _, dir := range []struct{ dy, dx int }{
+		{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1},
+	} {
+		p := Pos{Y: pos.Y, X: pos.X}
+		flippables := make([]Pos, 0)
+		for {
+			p.Y += dir.dy
+			p.X += dir.dx
+			if c, ok := b.GetCell(&p); !ok {
+				break
+			} else if c == OpponentOf(cell) {
+				flippables = append(flippables, p)
+			} else if c == cell && len(flippables) > 0 {
+				ret = append(ret, flippables)
+			} else { // c == Empty || len(flippables) == 0
+				break
+			}
+		}
+	}
+	return ret
+}
+
+func (b *Board) IsAvailable(pos *Pos, cell Cell) bool {
+	if !b.IsValidPos(pos) {
+		return false
+	}
+	if c := b.MustGetCell(pos); c != Empty {
+		return false
+	}
+	if len(b.collectFlippables(pos, cell)) == 0 {
+		return false
+	}
+	return true
+}
+
+func (b *Board) MustPut(pos *Pos, cell Cell) {
+	b.MustSetCell(pos, cell)
+	for _, chunk := range b.collectFlippables(pos, cell) {
+		for _, p := range chunk {
+			b.MustSetCell(&p, cell)
+		}
+	}
+}
+
 func (b *Board) String() string {
 	sb := new(strings.Builder)
 	sb.WriteString("   ")
