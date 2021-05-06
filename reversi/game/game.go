@@ -77,7 +77,7 @@ func (game *Game) IsOver() bool {
 	if game.skips[White] >= game.skipLimit || game.skips[Black] >= game.skipLimit {
 		return true
 	}
-	return !game.isPlayable(game.turn)
+	return !game.isPlayable(game.turn) && !game.isPlayable(OpponentOf(game.turn))
 }
 
 func (game *Game) scores() map[Turn]int {
@@ -99,17 +99,15 @@ func (game *Game) winner() Turn {
 	case game.skips[opponent] >= game.skipLimit:
 		return turn
 	}
-	if game.board.IsFull() {
-		scores := game.scores()
-		switch {
-		case scores[turn] > scores[opponent]:
-			return turn
-		case scores[turn] < scores[opponent]:
-			return opponent
-		}
+	scores := game.scores()
+	switch {
+	case scores[turn] > scores[opponent]:
+		return turn
+	case scores[turn] < scores[opponent]:
+		return opponent
+	default:
+		return Neither
 	}
-	// Probably not happens
-	return Neither
 }
 
 func (game *Game) Result() *GameResult {
