@@ -71,7 +71,7 @@ func wrapCPUStrategy(strategy game.Strategy) game.Strategy {
 	}
 }
 
-func initGame(player board.Cell) *game.Game {
+func initGame(player game.Turn) *game.Game {
 	b := board.NewBoard(8, 8)
 	for _, c := range []struct {
 		pos  *board.Pos
@@ -84,8 +84,8 @@ func initGame(player board.Cell) *game.Game {
 	} {
 		b.MustSetCell(c.pos, c.cell)
 	}
-	opponent := board.OpponentOf(player)
-	strategies := map[board.Cell]game.Strategy{
+	opponent := game.OpponentOf(player)
+	strategies := map[game.Turn]game.Strategy{
 		player:   userInputStrategy,
 		opponent: wrapCPUStrategy(game.RandomPossibleStrategy),
 	}
@@ -103,12 +103,12 @@ func playGame(game *game.Game) {
 	}
 }
 
-func showGameResult(game *game.Game, player board.Cell) {
-	opponent := board.OpponentOf(player)
-	scores := game.Scores()
+func showGameResult(g *game.Game, player game.Turn) {
+	opponent := game.OpponentOf(player)
+	scores := g.Scores()
 	fmt.Printf("You: %d\n", scores[player])
 	fmt.Printf("CPU: %d\n", scores[opponent])
-	winner := game.Winner()
+	winner := g.Winner()
 	switch {
 	case winner == player:
 		fmt.Print("You win.")
@@ -127,7 +127,7 @@ func prompt(msg string) (ret string) {
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	player := board.White
+	player := game.White
 	for {
 		game := initGame(player)
 		playGame(game)
