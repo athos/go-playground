@@ -29,6 +29,10 @@ func showBoard(b *board.Board) {
 }
 
 func validateUserInput(b *board.Board, cell board.Cell, input string) (*board.Pos, error) {
+	if input == "" || strings.ToLower(input) == "pass" {
+		return nil, nil
+	}
+
 	match := validInputRE.FindAllStringSubmatch(input, -1)
 	if len(match) == 0 {
 		return nil, fmt.Errorf("invalid format of hand: %s", input)
@@ -55,6 +59,9 @@ func userInputStrategy(b *board.Board, cell board.Cell) *board.Pos {
 			fmt.Printf("[ERROR] %s\n", err.Error())
 			continue
 		}
+		if pos == nil {
+			fmt.Println("Your turn has been passed.")
+		}
 		return pos
 	}
 }
@@ -63,7 +70,7 @@ func wrapCPUStrategy(strategy game.Strategy) game.Strategy {
 	return func(b *board.Board, c board.Cell) *board.Pos {
 		pos := strategy(b, c)
 		if pos == nil {
-			fmt.Println("CPU's turn has been skipped.")
+			fmt.Println("CPU's turn has been passed.")
 			return nil
 		}
 		fmt.Printf("CPU's turn: %s\n", pos.String())

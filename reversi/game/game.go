@@ -22,6 +22,7 @@ type Strategy func(*board.Board, board.Cell) *board.Pos
 type Game struct {
 	board      *board.Board
 	turn       Turn
+	skipLimit  int
 	skips      map[Turn]int
 	strategies map[Turn]Strategy
 }
@@ -30,6 +31,7 @@ func NewGame(b *board.Board, turn Turn, strategies map[Turn]Strategy) *Game {
 	return &Game{
 		board:      b,
 		turn:       turn,
+		skipLimit:  2,
 		skips:      map[Turn]int{},
 		strategies: strategies,
 	}
@@ -49,17 +51,16 @@ func collectAvailablePositions(b *board.Board, turn Turn) []board.Pos {
 	return ret
 }
 
-func (game *Game) Step() bool {
+func (game *Game) Step() {
 	turn := game.turn
 	strategy := game.strategies[turn]
 	cell := board.Cell(turn)
-	pos := strategy(game.board, cell)
-	if pos == nil {
-		return true
+	if pos := strategy(game.board, cell); pos == nil {
+		game.skips[turn]++
+	} else {
+		game.board.MustPut(pos, cell)
 	}
-	game.board.MustPut(pos, cell)
 	game.turn = OpponentOf(turn)
-	return false
 }
 
 func (game *Game) isPlayable(turn Turn) bool {
@@ -67,7 +68,13 @@ func (game *Game) isPlayable(turn Turn) bool {
 }
 
 func (game *Game) IsOver() bool {
-	return game.board.IsFull() || !game.isPlayable(game.turn)
+	if game.board.IsFull() {
+		return true
+	}
+	if game.skips[White] >= game.skipLimit || game.skips[Black] >= game.skipLimit {
+		return true
+	}
+	return !game.isPlayable(game.turn)
 }
 
 func (game *Game) Scores() map[Turn]int {
@@ -83,6 +90,12 @@ func (game *Game) Scores() map[Turn]int {
 func (game *Game) Winner() Turn {
 	turn := game.turn
 	opponent := OpponentOf(turn)
+	switch {
+	case game.skips[turn] >= game.skipLimit:
+		return opponent
+	case game.skips[opponent] >= game.skipLimit:
+		return turn
+	}
 	if game.board.IsFull() {
 		scores := game.Scores()
 		switch {
@@ -90,11 +103,10 @@ func (game *Game) Winner() Turn {
 			return turn
 		case scores[turn] < scores[opponent]:
 			return opponent
-		default:
-			return Neither
 		}
 	}
-	return opponent
+	// Probably not happens
+	return Neither
 }
 
 func TopLeftPossibleStrategy(b *board.Board, turn board.Cell) *board.Pos {
