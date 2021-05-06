@@ -15,6 +15,12 @@ var (
 	validInputRE = regexp.MustCompile("^([a-h])([1-8])$")
 )
 
+func prompt(msg string) (ret string) {
+	fmt.Print(msg)
+	fmt.Scanf("%s", &ret)
+	return ret
+}
+
 func showBoard(b *board.Board) {
 	lines := strings.Split(b.String(), "\n")
 	fmt.Print("  ")
@@ -47,11 +53,8 @@ func validateUserInput(b *board.Board, cell board.Cell, input string) (*board.Po
 }
 
 func userInputStrategy(b *board.Board, cell board.Cell) *board.Pos {
-	var input string
 	for {
-		fmt.Print("Your turn. Type in your hand (eg. e6): ")
-		fmt.Scanf("%s", &input)
-
+		input := prompt("Your turn. Type in your hand (eg. e6): ")
 		pos, err := validateUserInput(b, cell, input)
 		if err != nil {
 			fmt.Println()
@@ -113,8 +116,8 @@ func playGame(game *game.Game) {
 func showGameResult(g *game.Game, player game.Turn) {
 	opponent := game.OpponentOf(player)
 	result := g.Result()
-	fmt.Printf("You: %d (%d passes)\n", result.Scores[player], result.Skips[player])
-	fmt.Printf("CPU: %d (%d passes)\n", result.Scores[opponent], result.Skips[opponent])
+	fmt.Printf("You: %2d (%d passes)\n", result.Scores[player], result.Skips[player])
+	fmt.Printf("CPU: %2d (%d passes)\n", result.Scores[opponent], result.Skips[opponent])
 	winner := result.Winner
 	switch {
 	case winner == player:
@@ -124,12 +127,6 @@ func showGameResult(g *game.Game, player game.Turn) {
 	default:
 		fmt.Print("Game is a draw.")
 	}
-}
-
-func prompt(msg string) (ret string) {
-	fmt.Print(msg)
-	fmt.Scanf("%s", &ret)
-	return ret
 }
 
 func main() {
