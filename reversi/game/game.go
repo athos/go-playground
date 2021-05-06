@@ -24,6 +24,11 @@ type Game struct {
 	strategies map[Turn]Strategy
 }
 
+type GameResult struct {
+	Scores map[Turn]int
+	Skips  map[Turn]int
+}
+
 func NewGame(b *board.Board, turn Turn, strategies map[Turn]Strategy) *Game {
 	return &Game{
 		board:      b,
@@ -74,7 +79,7 @@ func (game *Game) IsOver() bool {
 	return !game.isPlayable(game.turn)
 }
 
-func (game *Game) Scores() map[Turn]int {
+func (game *Game) scores() map[Turn]int {
 	ret := map[Turn]int{}
 	game.board.ForEachPos(func(pos *board.Pos) {
 		if c := game.board.MustGetCell(pos); c != board.Empty {
@@ -82,6 +87,11 @@ func (game *Game) Scores() map[Turn]int {
 		}
 	})
 	return ret
+}
+
+func (game *Game) Result() *GameResult {
+	scores := game.scores()
+	return &GameResult{Scores: scores, Skips: game.skips}
 }
 
 func (game *Game) Winner() Turn {
@@ -94,7 +104,7 @@ func (game *Game) Winner() Turn {
 		return turn
 	}
 	if game.board.IsFull() {
-		scores := game.Scores()
+		scores := game.scores()
 		switch {
 		case scores[turn] > scores[opponent]:
 			return turn
