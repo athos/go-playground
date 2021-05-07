@@ -87,7 +87,7 @@ func (game *Game) scores() map[Turn]int {
 	}
 }
 
-func (game *Game) winner() Turn {
+func (game *Game) winner(scores map[Turn]int) Turn {
 	turn := game.turn
 	opponent := OpponentOf(turn)
 	switch {
@@ -96,7 +96,6 @@ func (game *Game) winner() Turn {
 	case game.skips[opponent] >= game.skipLimit:
 		return turn
 	}
-	scores := game.scores()
 	switch {
 	case scores[turn] > scores[opponent]:
 		return turn
@@ -108,9 +107,10 @@ func (game *Game) winner() Turn {
 }
 
 func (game *Game) Result() *GameResult {
+	scores := game.scores()
 	return &GameResult{
-		Winner: game.winner(),
-		Scores: game.scores(),
+		Winner: game.winner(scores),
+		Scores: scores,
 		Skips:  game.skips,
 	}
 }
