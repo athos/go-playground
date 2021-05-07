@@ -81,13 +81,11 @@ func (game *Game) IsOver() bool {
 }
 
 func (game *Game) scores() map[Turn]int {
-	ret := map[Turn]int{}
-	game.board.ForEachPos(func(pos *board.Pos) {
-		if c := game.board.MustGetCell(pos); c != board.Empty {
-			ret[Turn(c)]++
-		}
-	})
-	return ret
+	dist := game.board.Distribution()
+	return map[Turn]int{
+		White: dist[board.White],
+		Black: dist[board.Black],
+	}
 }
 
 func (game *Game) winner() Turn {

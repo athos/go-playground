@@ -31,9 +31,9 @@ func (p *Pos) String() string {
 }
 
 type Board struct {
-	rows, cols int
-	remaining  int
-	cells      [][]Cell
+	rows, cols   int
+	cells        [][]Cell
+	distribution map[Cell]int
 }
 
 func NewBoard(rows, cols int) *Board {
@@ -42,10 +42,10 @@ func NewBoard(rows, cols int) *Board {
 		cells[i] = make([]Cell, cols)
 	}
 	return &Board{
-		rows:      rows,
-		cols:      cols,
-		remaining: rows * cols,
-		cells:     cells,
+		rows:         rows,
+		cols:         cols,
+		cells:        cells,
+		distribution: map[Cell]int{Empty: rows * cols},
 	}
 }
 
@@ -57,8 +57,12 @@ func (b *Board) Cols() int {
 	return b.cols
 }
 
+func (b *Board) Distribution() map[Cell]int {
+	return b.distribution
+}
+
 func (b *Board) IsFull() bool {
-	return b.remaining == 0
+	return b.distribution[Empty] == 0
 }
 
 func (b *Board) IsValidPos(p *Pos) bool {
@@ -79,9 +83,8 @@ func (b *Board) GetCell(p *Pos) (c Cell, ok bool) {
 func (b *Board) MustSetCell(p *Pos, c Cell) {
 	old := b.cells[p.Y][p.X]
 	b.cells[p.Y][p.X] = c
-	if old == Empty {
-		b.remaining--
-	}
+	b.distribution[old]--
+	b.distribution[c]++
 }
 
 func (b *Board) ForEachPos(f func(*Pos)) {
