@@ -97,7 +97,7 @@ func (b *Board) ForEachPos(f func(*Pos)) {
 }
 
 func (b *Board) collectFlippables(pos *Pos, cell Cell) (ret [][]Pos) {
-	for _, dir := range []*struct{ dy, dx int }{
+	for _, dir := range []struct{ dy, dx int }{
 		{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1},
 	} {
 		p := Pos{pos.Y, pos.X}

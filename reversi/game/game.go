@@ -44,8 +44,7 @@ func (game *Game) Board() *board.Board {
 	return game.board
 }
 
-func collectAvailablePositions(b *board.Board, turn Turn) []board.Pos {
-	ret := make([]board.Pos, 0)
+func collectAvailablePositions(b *board.Board, turn Turn) (ret []board.Pos) {
 	b.ForEachPos(func(pos *board.Pos) {
 		if b.IsAvailable(pos, board.Cell(turn)) {
 			ret = append(ret, *pos)
