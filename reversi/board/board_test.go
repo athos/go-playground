@@ -17,37 +17,37 @@ func TestRowsAndCols(t *testing.T) {
 
 func TestGetAndSet(t *testing.T) {
 	b := NewBoard(4, 4)
-	assert.Equal(t, Empty, b.MustGetCell(&Pos{Y: 1, X: 1}))
-	assert.Equal(t, Empty, b.MustGetCell(&Pos{Y: 1, X: 2}))
-	b.MustSetCell(&Pos{Y: 1, X: 1}, White)
-	assert.Equal(t, White, b.MustGetCell(&Pos{Y: 1, X: 1}))
-	assert.Equal(t, Empty, b.MustGetCell(&Pos{Y: 1, X: 2}))
+	assert.Equal(t, Empty, b.MustGetCell(&Pos{1, 1}))
+	assert.Equal(t, Empty, b.MustGetCell(&Pos{1, 2}))
+	b.MustSetCell(&Pos{1, 1}, White)
+	assert.Equal(t, White, b.MustGetCell(&Pos{1, 1}))
+	assert.Equal(t, Empty, b.MustGetCell(&Pos{1, 2}))
 }
 
 func TestIsFull(t *testing.T) {
 	b := NewBoard(2, 2)
-	b.MustSetCell(&Pos{Y: 0, X: 0}, White)
-	b.MustSetCell(&Pos{Y: 0, X: 1}, Black)
-	b.MustSetCell(&Pos{Y: 1, X: 0}, Black)
+	b.MustSetCell(&Pos{0, 0}, White)
+	b.MustSetCell(&Pos{0, 1}, Black)
+	b.MustSetCell(&Pos{1, 0}, Black)
 	assert.Equal(t, false, b.IsFull())
-	b.MustSetCell(&Pos{Y: 1, X: 0}, White)
+	b.MustSetCell(&Pos{1, 0}, White)
 	assert.Equal(t, false, b.IsFull())
-	b.MustSetCell(&Pos{Y: 1, X: 1}, White)
+	b.MustSetCell(&Pos{1, 1}, White)
 	assert.Equal(t, true, b.IsFull())
 }
 
 func TestCollectFlippables(t *testing.T) {
 	b := NewBoard(4, 4)
-	b.MustSetCell(&Pos{Y: 1, X: 1}, White)
-	b.MustSetCell(&Pos{Y: 1, X: 2}, White)
-	b.MustSetCell(&Pos{Y: 2, X: 0}, Black)
-	b.MustSetCell(&Pos{Y: 2, X: 1}, White)
-	b.MustSetCell(&Pos{Y: 2, X: 2}, White)
-	b.MustSetCell(&Pos{Y: 3, X: 2}, Black)
-	actual := b.collectFlippables(&Pos{Y: 0, X: 2}, Black)
+	b.MustSetCell(&Pos{1, 1}, White)
+	b.MustSetCell(&Pos{1, 2}, White)
+	b.MustSetCell(&Pos{2, 0}, Black)
+	b.MustSetCell(&Pos{2, 1}, White)
+	b.MustSetCell(&Pos{2, 2}, White)
+	b.MustSetCell(&Pos{3, 2}, Black)
+	actual := b.collectFlippables(&Pos{0, 2}, Black)
 	expected := [][]Pos{
-		{Pos{Y: 1, X: 1}},
-		{Pos{Y: 1, X: 2}, Pos{Y: 2, X: 2}},
+		{Pos{1, 1}},
+		{Pos{1, 2}, Pos{2, 2}},
 	}
 	assert.Equal(t, expected, actual)
 }
