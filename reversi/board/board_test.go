@@ -30,8 +30,8 @@ func TestPosToString(t *testing.T) {
 		pos Pos
 		out string
 	}{
-		{Pos{Y: 0, X: 0}, "a1"},
-		{Pos{Y: 3, X: 2}, "c4"},
+		{Pos{0, 0}, "a1"},
+		{Pos{3, 2}, "c4"},
 	}
 	for _, tt := range tests {
 		title := fmt.Sprintf("(%d,%d) -> %s", tt.pos.Y, tt.pos.X, tt.out)
