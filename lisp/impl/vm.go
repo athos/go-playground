@@ -11,7 +11,7 @@ type Dump []Restorer
 
 type VM struct {
 	stack Stack
-	env   *Env
+	env   Env
 	code  Code
 	dump  Dump
 	pc    PC
@@ -24,16 +24,13 @@ type SelDumpEntry struct {
 
 type ApDumpEntry struct {
 	stack Stack
-	env   *Env
+	env   Env
 	code  Code
 	pc    PC
 }
 
 func NewVM(code Code) *VM {
-	return &VM{
-		env:  NewEnv(),
-		code: code,
-	}
+	return &VM{code: code}
 }
 
 func (vm *VM) fetchInsn() (*Insn, bool) {
@@ -106,11 +103,7 @@ func (vm *VM) Run() (Object, error) {
 			vm.push(insn.operands[0])
 		case LD:
 			loc := insn.operands[0].(*Location)
-			obj, err := vm.env.Locate(loc)
-			if err != nil {
-				return nil, err
-			}
-			vm.push(obj)
+			vm.push(vm.env.Locate(loc))
 		case ATOM:
 			obj := vm.pop()
 			vm.push(FromBool(IsAtom(obj)))
@@ -225,7 +218,7 @@ func (vm *VM) runAp() error {
 		pc:    vm.pc,
 	}
 	vm.stack = nil
-	vm.env = Push(vm.env, frame)
+	vm.env = vm.env.Push(frame)
 	vm.code = fn.code
 	vm.dump = append(vm.dump, entry)
 	vm.pc = 0

@@ -1,47 +1,30 @@
 package lisp
 
-import "errors"
-
 type Frame []Object
-type Env struct {
-	frame Frame
-	next *Env
-}
+type Env []Frame
 
 type Location struct {
 	level, offset int
 }
 
-func NewEnv() *Env {
-	return nil
+func (env Env) Push(frame Frame) Env {
+	return append(env, frame)
 }
 
-func Push(env *Env, frame Frame) *Env {
-	return &Env{frame, env}
+func (env Env) Pop() Env {
+	if len(env) == 0 {
+		panic("env underflow")
+	}
+	return env[:len(env)-1]
 }
 
-func (env *Env) Pop() (*Env, error) {
-	if env == nil {
-		return nil, errors.New("Env underflow")
+func (env Env) Locate(loc *Location) Object {
+	if loc.level >= len(env) {
+		panic("illegal access to lexical environment")
 	}
-	return env.next, nil
-}
-
-func (env *Env) Locate(loc *Location) (Object, error) {
-	var frame Frame
-	found := false
-	for i := 0; i < loc.level; i++ {
-		if env == nil {
-			return nil, errors.New("illegal access to lexical environment")
-		}
-		frame = env.frame
-		env = env.next
-	}
-	if !found {
-		return nil, errors.New("illegal access to lexical environment")
-	}
+	frame := env[loc.level]
 	if loc.offset >= len(frame) {
-		return nil, errors.New("illegal access to lexical environment")
+		panic("illegal access to lexical environment")
 	}
-	return frame[loc.offset], nil
+	return frame[loc.offset]
 }
