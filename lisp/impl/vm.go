@@ -149,9 +149,7 @@ func (vm *VM) Run() (Object, error) {
 		case SEL:
 			ct := insn.operands[0].(Code)
 			cf := insn.operands[1].(Code)
-			if err := vm.runSel(ct, cf); err != nil {
-				return nil, err
-			}
+			vm.runSel(ct, cf)
 			continue
 		case JOIN:
 			entry := vm.dumpPop()
@@ -181,7 +179,7 @@ func (entry *SelDumpEntry) restore(vm *VM) {
 	vm.pc = entry.pc
 }
 
-func (vm *VM) runSel(ct, cf Code) error {
+func (vm *VM) runSel(ct, cf Code) {
 	var c Code
 	obj := vm.pop()
 	if ToBool(obj) {
@@ -192,7 +190,6 @@ func (vm *VM) runSel(ct, cf Code) error {
 	vm.code, c = c, vm.code
 	vm.dump = append(vm.dump, &SelDumpEntry{c, vm.pc})
 	vm.pc = 0
-	return nil
 }
 
 func (entry *ApDumpEntry) restore(vm *VM) {
