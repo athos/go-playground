@@ -5,7 +5,7 @@ import "errors"
 type PC int
 type Stack []Object
 type Restorer interface {
-	restore(*VM) error
+	restore(*VM)
 }
 type Dump []Restorer
 
@@ -47,34 +47,28 @@ func (vm *VM) push(obj Object) {
 	vm.stack = append(vm.stack, obj)
 }
 
-func (vm *VM) pop() (Object, error) {
+func (vm *VM) pop() Object {
 	if len(vm.stack) == 0 {
-		return nil, errors.New("Stack underflow")
+		panic("stack underflow")
 	}
 	obj := vm.stack[len(vm.stack)-1]
 	vm.stack = vm.stack[:len(vm.stack)-1]
-	return obj, nil
+	return obj
 }
 
-func (vm *VM) dumpPop() (Restorer, error) {
+func (vm *VM) dumpPop() Restorer {
 	size := len(vm.dump)
 	if size == 0 {
-		return nil, errors.New("dump stack underflow")
+		panic("dump stack underflow")
 	}
 	ret := vm.dump[size-1]
 	vm.dump = vm.dump[:size-1]
-	return ret, nil
+	return ret
 }
 
 func (vm *VM) binaryOp(op func(int, int) Object) error {
-	obj1, err := vm.pop()
-	if err != nil {
-		return err
-	}
-	obj2, err := vm.pop()
-	if err != nil {
-		return err
-	}
+	obj1 := vm.pop()
+	obj2 := vm.pop()
 	y, err := ToNumber(obj1)
 	if err != nil {
 		return err
@@ -118,42 +112,24 @@ func (vm *VM) Run() (Object, error) {
 			}
 			vm.push(obj)
 		case ATOM:
-			obj, err := vm.pop()
-			if err != nil {
-				return nil, err
-			}
+			obj := vm.pop()
 			vm.push(FromBool(IsAtom(obj)))
 		case NULL:
-			obj, err := vm.pop()
-			if err != nil {
-				return nil, err
-			}
+			obj := vm.pop()
 			vm.push(FromBool(IsNull(obj)))
 		case CONS:
-			x, err := vm.pop()
-			if err != nil {
-				return nil, err
-			}
-			y, err := vm.pop()
-			if err != nil {
-				return nil, err
-			}
+			x := vm.pop()
+			y := vm.pop()
 			vm.push(ToCons(x, y))
 		case CAR:
-			obj, err := vm.pop()
-			if err != nil {
-				return nil, err
-			}
+			obj := vm.pop()
 			car, err := Car(obj)
 			if err != nil {
 				return nil, err
 			}
 			vm.push(car)
 		case CDR:
-			obj, err := vm.pop()
-			if err != nil {
-				return nil, err
-			}
+			obj := vm.pop()
 			cdr, err := Cdr(obj)
 			if err != nil {
 				return nil, err
@@ -184,9 +160,9 @@ func (vm *VM) Run() (Object, error) {
 				return nil, err
 			}
 		case JOIN:
-			if err := vm.runJoin(); err != nil {
-				return nil, err
-			}
+			entry := vm.dumpPop()
+			_ = entry.(*SelDumpEntry)
+			entry.restore(vm)
 		case LDF:
 			code := insn.operands[0].(Code)
 			env := vm.env
@@ -196,31 +172,23 @@ func (vm *VM) Run() (Object, error) {
 				return nil, err
 			}
 		case RTN:
-			if err := vm.runRtn(); err != nil {
-				return nil, err
-			}
+			entry := vm.dumpPop()
+			_ = entry.(*ApDumpEntry)
+			entry.restore(vm)
 		}
 		vm.pc++
 	}
-	if ret, err := vm.pop(); err != nil {
-		return nil, nil
-	} else {
-		return ret, nil
-	}
+	return vm.pop(), nil
 }
 
-func (entry *SelDumpEntry) restore(vm *VM) error {
+func (entry *SelDumpEntry) restore(vm *VM) {
 	vm.code = entry.code
 	vm.pc = entry.pc
-	return nil
 }
 
 func (vm *VM) runSel(ct, cf Code) error {
 	var c Code
-	obj, err := vm.pop()
-	if err != nil {
-		return err
-	}
+	obj := vm.pop()
 	if ToBool(obj) {
 		c = ct
 	} else {
@@ -231,44 +199,21 @@ func (vm *VM) runSel(ct, cf Code) error {
 	return nil
 }
 
-func (vm *VM) runJoin() error {
-	entry, err := vm.dumpPop()
-	if err != nil {
-		return nil
-	}
-	selEntry, ok := entry.(*SelDumpEntry)
-	if !ok {
-		return errors.New("run into incoherent dump entry (ap)")
-	}
-	selEntry.restore(vm)
-	return nil
-}
-
-func (entry *ApDumpEntry) restore(vm *VM) error {
-	v, err := vm.pop()
-	if err != nil {
-		return err
-	}
+func (entry *ApDumpEntry) restore(vm *VM) {
+	v := vm.pop()
 	vm.stack = append(entry.stack, v)
 	vm.env = entry.env
 	vm.code = entry.code
 	vm.pc = entry.pc
-	return nil
 }
 
 func (vm *VM) runAp() error {
-	obj, err := vm.pop()
-	if err != nil {
-		return nil
-	}
+	obj := vm.pop()
 	fn, ok := obj.(*Func)
 	if !ok {
 		return errors.New("cannot apply object other than function")
 	}
-	args, err := vm.pop()
-	if err != nil {
-		return nil
-	}
+	args := vm.pop()
 	frame, err := ListToSlice(args)
 	if err != nil {
 		return nil
@@ -284,18 +229,5 @@ func (vm *VM) runAp() error {
 	vm.code = fn.code
 	vm.dump = append(vm.dump, entry)
 	vm.pc = 0
-	return nil
-}
-
-func (vm *VM) runRtn() error {
-	entry, err := vm.dumpPop()
-	if err != nil {
-		return err
-	}
-	apDumpEntry, ok := entry.(*ApDumpEntry)
-	if !ok {
-		return errors.New("run into incoherent dump entry (sel)")
-	}
-	apDumpEntry.restore(vm)
 	return nil
 }
