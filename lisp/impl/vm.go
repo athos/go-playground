@@ -152,6 +152,7 @@ func (vm *VM) Run() (Object, error) {
 			if err := vm.runSel(ct, cf); err != nil {
 				return nil, err
 			}
+			continue
 		case JOIN:
 			entry := vm.dumpPop()
 			_ = entry.(*SelDumpEntry)
@@ -164,6 +165,7 @@ func (vm *VM) Run() (Object, error) {
 			if err := vm.runAp(); err != nil {
 				return nil, err
 			}
+			continue
 		case RTN:
 			entry := vm.dumpPop()
 			_ = entry.(*ApDumpEntry)
@@ -189,6 +191,7 @@ func (vm *VM) runSel(ct, cf Code) error {
 	}
 	vm.code, c = c, vm.code
 	vm.dump = append(vm.dump, &SelDumpEntry{c, vm.pc})
+	vm.pc = 0
 	return nil
 }
 
