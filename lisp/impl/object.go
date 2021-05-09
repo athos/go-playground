@@ -17,7 +17,7 @@ type Cons struct {
 }
 type Func struct {
 	code Code
-	env  Env
+	env  *Env
 }
 
 func IsAtom(obj Object) bool {

@@ -11,7 +11,7 @@ type Dump []Restorer
 
 type VM struct {
 	stack Stack
-	env   Env
+	env   *Env
 	code  Code
 	dump  Dump
 	pc    PC
@@ -24,7 +24,7 @@ type SelDumpEntry struct {
 
 type ApDumpEntry struct {
 	stack Stack
-	env   Env
+	env   *Env
 	code  Code
 	pc    PC
 }
