@@ -65,8 +65,12 @@ func FromBool(b bool) Object {
 	}
 }
 
-func ToCons(car Object, cdr Object) Object {
+func NewCons(car Object, cdr Object) Object {
 	return &Cons{car, cdr}
+}
+
+func NewFunc(code Code, env *Env) *Func {
+	return &Func{code, env}
 }
 
 func ListToSlice(obj Object) ([]Object, error) {
@@ -93,7 +97,7 @@ func ListToSlice(obj Object) ([]Object, error) {
 	}
 }
 
-func ListToString(obj Object) (string, error) {
+func listToString(obj Object) (string, error) {
 	elems, err := ListToSlice(obj)
 	if err != nil {
 		return "", err
@@ -125,7 +129,7 @@ func ToString(obj Object) (string, error) {
 	case *Symbol:
 		return obj.name, nil
 	case *Cons:
-		return ListToString(obj)
+		return listToString(obj)
 	case *Func:
 		return "#<func>", nil
 	default:

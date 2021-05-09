@@ -113,7 +113,7 @@ func (vm *VM) Run() (Object, error) {
 		case CONS:
 			x := vm.pop()
 			y := vm.pop()
-			vm.push(ToCons(x, y))
+			vm.push(NewCons(x, y))
 		case CAR:
 			obj := vm.pop()
 			car, err := Car(obj)
@@ -158,7 +158,7 @@ func (vm *VM) Run() (Object, error) {
 		case LDF:
 			code := insn.operands[0].(Code)
 			env := vm.env
-			vm.push(&Func{code, env})
+			vm.push(NewFunc(code, env))
 		case AP:
 			if err := vm.runAp(); err != nil {
 				return nil, err
