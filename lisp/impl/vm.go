@@ -168,6 +168,14 @@ func (vm *VM) Run() (Object, error) {
 			entry := vm.dumpPop()
 			_ = entry.(*ApDumpEntry)
 			entry.restore(vm)
+		case DUM:
+			frame := make([]Object, 1)
+			vm.env = vm.env.Push(frame)
+		case RAP:
+			if err := vm.runRap(); err != nil {
+				return nil, err
+			}
+			continue
 		}
 		vm.pc++
 	}
@@ -200,7 +208,7 @@ func (entry *ApDumpEntry) restore(vm *VM) {
 	vm.pc = entry.pc
 }
 
-func (vm *VM) runAp() error {
+func (vm *VM) withFn(f func(*Func) Restorer) error {
 	obj := vm.pop()
 	fn, ok := obj.(*Func)
 	if !ok {
@@ -209,18 +217,36 @@ func (vm *VM) runAp() error {
 	args := vm.pop()
 	frame, err := ListToSlice(args)
 	if err != nil {
-		return nil
+		return err
 	}
-	entry := &ApDumpEntry{
-		stack: vm.stack,
-		env:   vm.env,
-		code:  vm.code,
-		pc:    vm.pc,
-	}
+	entry := f(fn)
 	vm.stack = nil
 	vm.env = vm.env.Push(frame)
 	vm.code = fn.code
 	vm.dump = append(vm.dump, entry)
 	vm.pc = 0
 	return nil
+}
+
+func (vm *VM) runAp() error {
+	return vm.withFn(func(_ *Func) Restorer {
+		return &ApDumpEntry{
+			stack: vm.stack,
+			env:   vm.env,
+			code:  vm.code,
+			pc:    vm.pc,
+		}
+	})
+}
+
+func (vm *VM) runRap() error {
+	return vm.withFn(func(fn *Func) Restorer {
+		vm.env.frame[0] = fn
+		return &ApDumpEntry{
+			stack: vm.stack,
+			env:   vm.env.Pop(),
+			code:  vm.code,
+			pc:    vm.pc,
+		}
+	})
 }

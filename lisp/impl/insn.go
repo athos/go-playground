@@ -25,6 +25,8 @@ const (
 	LDF
 	AP
 	RTN
+	DUM
+	RAP
 )
 
 type Operand interface{}
