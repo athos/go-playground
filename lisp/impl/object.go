@@ -116,6 +116,11 @@ func ToString(obj Object) string {
 	switch obj := obj.(type) {
 	case nil:
 		return "nil"
+	case bool:
+		if !obj {
+			panic(fmt.Sprintf("unknown type of object found: %v", obj))
+		}
+		return "t"
 	case int:
 		return strconv.Itoa(obj)
 	case string:
