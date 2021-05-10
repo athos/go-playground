@@ -28,7 +28,7 @@ func NewReader(reader io.Reader) *Reader {
 func (r *Reader) readRune() (rune, error) {
 	c, _, err := r.reader.ReadRune()
 	if err != nil {
-		return 0, nil
+		return 0, err
 	}
 	return c, nil
 }
@@ -40,7 +40,7 @@ func (r *Reader) peekRune() (rune, error) {
 	}
 	err = r.reader.UnreadRune()
 	if err != nil {
-		return 0, nil
+		return 0, err
 	}
 	return c, nil
 }
@@ -50,7 +50,7 @@ func (r *Reader) readWhile(pred func(rune) bool) (string, error) {
 	for r.reader.Buffered() > 0 {
 		c, err := r.readRune()
 		if err != nil {
-			return "", nil
+			return "", err
 		}
 		if !pred(c) {
 			return sb.String(), nil
@@ -79,11 +79,12 @@ func (r *Reader) skipWhitespaces() error {
 
 func (r *Reader) readNumber() (Object, error) {
 	var negative bool
-	c, err := r.readRune()
+	c, err := r.peekRune()
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	if c == '-' {
+		r.readRune()
 		negative = true
 	}
 	digits, err := r.readWhile(unicode.IsDigit)
