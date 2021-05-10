@@ -215,9 +215,12 @@ func (vm *VM) withFn(f func(*Func) Restorer) error {
 		return errors.New("cannot apply object other than function")
 	}
 	args := vm.pop()
-	frame, err := ListToSlice(args)
+	frame, improper, err := ListToSlice(args)
 	if err != nil {
 		return err
+	}
+	if improper != nil {
+		return errors.New("improper lists are not allowed for arg lists")
 	}
 	entry := f(fn)
 	vm.stack = nil

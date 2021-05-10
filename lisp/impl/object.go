@@ -73,32 +73,31 @@ func NewFunc(code Code, env *Env) *Func {
 	return &Func{code, env}
 }
 
-func ListToSlice(obj Object) ([]Object, error) {
+func ListToSlice(obj Object) ([]Object, Object, error) {
 	if obj == nil {
-		return nil, nil
+		return nil, nil, nil
 	}
-
-	c, ok := obj.(*Cons)
-	if !ok {
-		return nil, fmt.Errorf("cons expected, but got %v", obj)
+	if IsAtom(obj) {
+		return nil, nil, fmt.Errorf("cons expected, but got %v", obj)
 	}
 	var ret []Object
+	c := obj.(*Cons)
 	for {
 		ret = append(ret, c.car)
 		obj := c.cdr
 		switch o := obj.(type) {
 		case nil:
-			return ret, nil
+			return ret, nil, nil
 		case *Cons:
 			c = o
 		default:
-			panic("improper lists are not supported yet")
+			return ret, o, nil
 		}
 	}
 }
 
 func listToString(obj Object) string {
-	elems, _ := ListToSlice(obj)
+	elems, improper, _ := ListToSlice(obj)
 	var sb strings.Builder
 	sb.WriteRune('(')
 	for i, elem := range elems {
@@ -107,6 +106,10 @@ func listToString(obj Object) string {
 		if i < len(elems)-1 {
 			sb.WriteRune(' ')
 		}
+	}
+	if improper != nil {
+		sb.WriteString(" . ")
+		sb.WriteString(ToString(improper))
 	}
 	sb.WriteRune(')')
 	return sb.String()

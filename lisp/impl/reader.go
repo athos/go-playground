@@ -14,7 +14,7 @@ var delimiters = map[rune]bool{
 	')':  true,
 	'\'': true,
 	'"':  true,
-	',':  true,
+	'.':  true,
 }
 
 type Reader struct {
@@ -135,24 +135,36 @@ func (r *Reader) readList() (Object, error) {
 	// discards preceding '('
 	r.readRune()
 	var elems []Object
+	var improper Object
 	for {
 		c, err := r.peekRune()
 		if err != nil {
 			return nil, err
 		}
-		if c == ')' {
+		switch c {
+		case ')':
 			r.readRune()
-			var ret Object = nil
+			var ret Object = improper
 			for i := range elems {
 				ret = NewCons(elems[len(elems)-i-1], ret)
 			}
 			return ret, nil
+		case '.':
+			r.readRune()
+			improper, err = r.Read()
+			if err != nil {
+				return nil, err
+			}
+		default:
+			elem, err := r.Read()
+			if err != nil {
+				return nil, err
+			}
+			if improper != nil {
+				return nil, errors.New("improper lists cannot have more than one elements on the right side of dot")
+			}
+			elems = append(elems, elem)
 		}
-		elem, err := r.Read()
-		if err != nil {
-			return nil, err
-		}
-		elems = append(elems, elem)
 	}
 }
 
