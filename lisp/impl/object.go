@@ -97,41 +97,35 @@ func ListToSlice(obj Object) ([]Object, error) {
 	}
 }
 
-func listToString(obj Object) (string, error) {
-	elems, err := ListToSlice(obj)
-	if err != nil {
-		return "", err
-	}
+func listToString(obj Object) string {
+	elems, _ := ListToSlice(obj)
 	var sb strings.Builder
 	sb.WriteRune('(')
 	for i, elem := range elems {
-		s, err := ToString(elem)
-		if err != nil {
-			return "", err
-		}
+		s := ToString(elem)
 		sb.WriteString(s)
-		if i < len(elems) {
-			sb.WriteString(", ")
+		if i < len(elems)-1 {
+			sb.WriteRune(' ')
 		}
 	}
 	sb.WriteRune(')')
-	return sb.String(), nil
+	return sb.String()
 }
 
-func ToString(obj Object) (string, error) {
+func ToString(obj Object) string {
 	switch obj := obj.(type) {
 	case nil:
-		return "nil", nil
+		return "nil"
 	case int:
-		return strconv.Itoa(obj), nil
+		return strconv.Itoa(obj)
 	case string:
-		return fmt.Sprintf("\"%s\"", obj), nil
+		return fmt.Sprintf("\"%s\"", obj)
 	case *Symbol:
-		return obj.name, nil
+		return obj.name
 	case *Cons:
 		return listToString(obj)
 	case *Func:
-		return "#<func>", nil
+		return "#<func>"
 	default:
 		panic(fmt.Sprintf("unknown type of object found: %v", obj))
 	}
