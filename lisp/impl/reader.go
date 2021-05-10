@@ -137,6 +137,7 @@ func (r *Reader) readList() (Object, error) {
 	var elems []Object
 	var improper Object
 	for {
+		r.skipWhitespaces()
 		c, err := r.peekRune()
 		if err != nil {
 			return nil, err
