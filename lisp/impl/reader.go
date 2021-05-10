@@ -9,12 +9,12 @@ import (
 	"unicode"
 )
 
-var delimiters = map[rune]bool {
-	'(': true,
-	')': true,
+var delimiters = map[rune]bool{
+	'(':  true,
+	')':  true,
 	'\'': true,
-	'"': true,
-	',': true,
+	'"':  true,
+	',':  true,
 }
 
 type Reader struct {
