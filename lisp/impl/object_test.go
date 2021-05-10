@@ -23,3 +23,31 @@ func TestListToSlice(t *testing.T) {
 		})
 	}
 }
+
+func TestToString(t *testing.T) {
+	tests := []struct {
+		in  Object
+		out string
+	}{
+		{nil, "nil"},
+		{true, "t"},
+		{42, "42"},
+		{&Symbol{"foo"}, "foo"},
+		{&Cons{&Symbol{"+"}, &Cons{1, &Cons{2, nil}}}, "(+ 1 2)"},
+		{
+			&Cons{
+				&Symbol{"+"},
+				&Cons{
+					&Cons{&Symbol{"*"}, &Cons{3, &Cons{3, nil}}},
+					&Cons{&Cons{&Symbol{"*"}, &Cons{4, &Cons{4, nil}}}, nil},
+				},
+			},
+			"(+ (* 3 3) (* 4 4))",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.out, func(t *testing.T) {
+			assert.Equal(t, tt.out, ToString(tt.in))
+		})
+	}
+}
