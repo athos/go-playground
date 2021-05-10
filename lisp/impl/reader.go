@@ -33,23 +33,33 @@ func (r *Reader) readRune() (rune, error) {
 	return c, nil
 }
 
+func (r *Reader) unread() {
+	err := r.reader.UnreadRune()
+	if err != nil {
+		panic(err)
+	}
+}
+
 func (r *Reader) peekRune() (rune, error) {
 	c, err := r.readRune()
 	if err != nil {
-		return 0, nil
-	}
-	err = r.reader.UnreadRune()
-	if err != nil {
+		if err == io.EOF {
+			return 0, io.ErrUnexpectedEOF
+		}
 		return 0, err
 	}
+	r.unread()
 	return c, nil
 }
 
 func (r *Reader) readWhile(pred func(rune) bool) (string, error) {
 	var sb strings.Builder
-	for r.reader.Buffered() > 0 {
+	for {
 		c, err := r.readRune()
 		if err != nil {
+			if err == io.EOF {
+				return sb.String(), nil
+			}
 			return "", err
 		}
 		if !pred(c) {
@@ -57,20 +67,21 @@ func (r *Reader) readWhile(pred func(rune) bool) (string, error) {
 		}
 		sb.WriteRune(c)
 	}
-	return sb.String(), nil
 }
 
 func (r *Reader) dropWhile(pred func(rune) bool) error {
-	for r.reader.Buffered() > 0 {
+	for {
 		c, err := r.readRune()
 		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
 			return err
 		}
 		if !pred(c) {
 			return nil
 		}
 	}
-	return nil
 }
 
 func (r *Reader) skipWhitespaces() error {
@@ -148,10 +159,7 @@ func (r *Reader) Read() (Object, error) {
 	if err != nil {
 		return nil, err
 	}
-	if r.reader.Buffered() == 0 {
-		return nil, errors.New("unexpected EOF")
-	}
-	c, err := r.readRune()
+	c, err := r.peekRune()
 	if err != nil {
 		return nil, err
 	}
