@@ -63,6 +63,7 @@ func (r *Reader) readWhile(pred func(rune) bool) (string, error) {
 			return "", err
 		}
 		if !pred(c) {
+			r.unread()
 			return sb.String(), nil
 		}
 		sb.WriteRune(c)
@@ -79,6 +80,7 @@ func (r *Reader) dropWhile(pred func(rune) bool) error {
 			return err
 		}
 		if !pred(c) {
+			r.unread()
 			return nil
 		}
 	}
