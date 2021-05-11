@@ -203,8 +203,8 @@ func TestVM(t *testing.T) {
 				{NIL, nil},
 				{NULL, nil},
 				{SEL, []Operand{
-					Code([]Insn{{LDC, []Operand{1}}, {JOIN, nil}}),
-					Code([]Insn{{LDC, []Operand{2}}, {JOIN, nil}}),
+					Code{{LDC, []Operand{1}}, {JOIN, nil}},
+					Code{{LDC, []Operand{2}}, {JOIN, nil}},
 				}},
 			},
 			1,
@@ -215,8 +215,8 @@ func TestVM(t *testing.T) {
 				{LDC, []Operand{true}},
 				{NULL, nil},
 				{SEL, []Operand{
-					Code([]Insn{{LDC, []Operand{1}}, {JOIN, nil}}),
-					Code([]Insn{{LDC, []Operand{2}}, {JOIN, nil}}),
+					Code{{LDC, []Operand{1}}, {JOIN, nil}},
+					Code{{LDC, []Operand{2}}, {JOIN, nil}},
 				}},
 			},
 			2,
@@ -229,12 +229,12 @@ func TestVM(t *testing.T) {
 				{NIL, nil},
 				{CONS, nil},
 				{LDF, []Operand{
-					Code([]Insn{
+					Code{
 						{LD, []Operand{&Location{0, 0}}},
 						{LDC, []Operand{2}},
 						{MUL, nil},
 						{RTN, nil},
-					}),
+					},
 				}},
 				{AP, nil},
 			},
