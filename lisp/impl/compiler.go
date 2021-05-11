@@ -151,10 +151,7 @@ func (c *Compiler) compileLambda(argList Object) error {
 	cbody := c.clone()
 	cbody.level++
 	params, improper, err := ListToSlice(args[0])
-	if err != nil {
-		return err
-	}
-	if improper != nil {
+	if improper != nil || err != nil {
 		return errors.New("arglist must be proper list")
 	}
 	for i, param := range params {
@@ -175,10 +172,7 @@ func (c *Compiler) compileLambda(argList Object) error {
 
 func (c *Compiler) compileApplication(fn Object, argList Object) error {
 	args, improper, err := ListToSlice(argList)
-	if err != nil {
-		return err
-	}
-	if improper != nil {
+	if improper != nil || err != nil {
 		return errors.New("arglist must be proper list")
 	}
 	for _, arg := range args {
