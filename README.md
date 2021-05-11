@@ -1,0 +1,13 @@
+# go-playground
+
+This repository contains my collection of toy projects to learn Go programming language.
+
+## Projects
+
+- `reversi`: An implementation of the board game Reversi
+- `lisp`: Simple SECD-based Lisp interpreter
+
+## License
+
+Copyright (c) 2021 Shogo Ohta
+Distributed under the MIT License.
