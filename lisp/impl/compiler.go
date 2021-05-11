@@ -22,7 +22,7 @@ func (c *Compiler) clone() *Compiler {
 	for k, v := range c.cenv {
 		cenv[k] = v
 	}
-	return &Compiler{c.insns, cenv, c.level}
+	return &Compiler{nil, cenv, c.level}
 }
 
 func (c *Compiler) pushInsn(op Op, operands []Operand) {
@@ -160,7 +160,7 @@ func (c *Compiler) compileLambda(argList Object) error {
 	for i, param := range params {
 		switch obj := param.(type) {
 		case *Symbol:
-			cbody.cenv[obj.name] = &Location{c.level, i}
+			cbody.cenv[obj.name] = &Location{cbody.level, i}
 		default:
 			return errors.New("fn argument must be symbol")
 		}
@@ -182,7 +182,8 @@ func (c *Compiler) compileApplication(fn Object, argList Object) error {
 		return errors.New("arglist must be proper list")
 	}
 	c.pushInsn(NIL, nil)
-	for _, arg := range args {
+	for i := range args {
+		arg := args[len(args)-i-1]
 		if err := c.compile(arg); err != nil {
 			return err
 		}

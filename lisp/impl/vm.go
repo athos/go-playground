@@ -111,8 +111,8 @@ func (vm *VM) Run() (Object, error) {
 			obj := vm.pop()
 			vm.push(FromBool(IsNull(obj)))
 		case CONS:
-			x := vm.pop()
 			y := vm.pop()
+			x := vm.pop()
 			vm.push(NewCons(x, y))
 		case CAR:
 			obj := vm.pop()
