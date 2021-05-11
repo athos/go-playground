@@ -33,39 +33,39 @@ func TestVM(t *testing.T) {
 			true,
 		},
 		{
-			"ldc(2); ldc(1); cons -> (1 . 2)",
+			"ldc(1); ldc(2); cons -> (1 . 2)",
 			[]Insn{
-				{LDC, []Operand{2}},
 				{LDC, []Operand{1}},
+				{LDC, []Operand{2}},
 				{CONS, nil},
 			},
 			&Cons{1, 2},
 		},
 		{
-			"ldc(2); ldc(1); cons; car -> 1",
+			"ldc(1); ldc(2); cons; car -> 1",
 			[]Insn{
-				{LDC, []Operand{2}},
 				{LDC, []Operand{1}},
+				{LDC, []Operand{2}},
 				{CONS, nil},
 				{CAR, nil},
 			},
 			1,
 		},
 		{
-			"ldc(2); ldc(1); cons; cdr -> 2",
+			"ldc(1); ldc(2); cons; cdr -> 2",
 			[]Insn{
-				{LDC, []Operand{2}},
 				{LDC, []Operand{1}},
+				{LDC, []Operand{2}},
 				{CONS, nil},
 				{CDR, nil},
 			},
 			2,
 		},
 		{
-			"ldc(2); ldc(1); cons; atom -> nil",
+			"ldc(1); ldc(2); cons; atom -> nil",
 			[]Insn{
-				{LDC, []Operand{2}},
 				{LDC, []Operand{1}},
+				{LDC, []Operand{2}},
 				{CONS, nil},
 				{ATOM, nil},
 			},
@@ -222,10 +222,11 @@ func TestVM(t *testing.T) {
 			2,
 		},
 		{
-			"nil; ldc(3); cons; ldf(ld(0,0); ldc(2); mul; rtn;); ap; -> 6",
+			// ((lambda (x) (+ x 2)) 3)
+			"ldc(3); nil; cons; ldf(ld(0,0); ldc(2); mul; rtn;); ap; -> 6",
 			[]Insn{
-				{NIL, nil},
 				{LDC, []Operand{3}},
+				{NIL, nil},
 				{CONS, nil},
 				{LDF, []Operand{
 					Code([]Insn{
@@ -240,36 +241,34 @@ func TestVM(t *testing.T) {
 			6,
 		},
 		{
-			// (letrec ((f (lambda (x)
-			//               (* x 2))))
+			// (let ((f (lambda (x)
+			//            (* x 2))))
 			//   (f (f 3)))
-			"nil; ldc(3); cons; ldf(ld(0,0); ldc(2); mul; rtn;); cons; ldf(nil; nil; ld(0,0); cons; ld(0,0); ap; cons; ld(0,0); ap; rtn; -> 12",
+			"ldf(ld(0,0); ldc(2); mul; rtn;); nil; cons; cons; ldf(ldc(3); nil; cons; ld(0,0); ap; nil; cons; ld(0,0); ap; rtn;); ap; -> 12",
 			[]Insn{
-				{NIL, nil},
-				{LDC, []Operand{3}},
-				{CONS, nil},
 				{LDF, []Operand{
-					Code([]Insn{
+					Code{
 						{LD, []Operand{&Location{0, 0}}},
 						{LDC, []Operand{2}},
 						{MUL, nil},
 						{RTN, nil},
-					}),
+					},
 				}},
+				{NIL, nil},
 				{CONS, nil},
 				{LDF, []Operand{
-					Code([]Insn{
+					Code{
+						{LDC, []Operand{3}},
 						{NIL, nil},
-						{NIL, nil},
-						{LD, []Operand{&Location{0, 1}}},
 						{CONS, nil},
 						{LD, []Operand{&Location{0, 0}}},
 						{AP, nil},
+						{NIL, nil},
 						{CONS, nil},
 						{LD, []Operand{&Location{0, 0}}},
 						{AP, nil},
 						{RTN, nil},
-					}),
+					},
 				}},
 				{AP, nil},
 			},
@@ -281,34 +280,34 @@ func TestVM(t *testing.T) {
 			//                 1
 			//                 (* x (f (- x 1)))))))
 			//   (f 5))
-			"dum; nil; ldc(5); cons; ldf(ld(0,0); ldc(0); eq; sel(ldc(1); join;, ld(0,0); nil; ld(0,0); ldc(1); sub; cons; ld(1,0); ap; mul; join; rtn; -> 120",
+			"ldc(5); nil; cons; ldf(ld(0,0); ldc(0); eq; sel(ldc(1); join;, ld(0,0); ld(0,0); ldc(1); sub; nil; cons; ld(1,0); dum; rap; mul; join;); rtn;); dum; rap; -> 120",
 			[]Insn{
-				{NIL, nil},
 				{LDC, []Operand{5}},
+				{NIL, nil},
 				{CONS, nil},
 				{LDF, []Operand{
-					Code([]Insn{
+					Code{
 						{LD, []Operand{&Location{0, 0}}},
 						{LDC, []Operand{0}},
 						{EQ, nil},
 						{SEL, []Operand{
-							Code([]Insn{{LDC, []Operand{1}}, {JOIN, nil}}),
-							Code([]Insn{
+							Code{{LDC, []Operand{1}}, {JOIN, nil}},
+							Code{
 								{LD, []Operand{&Location{0, 0}}},
-								{NIL, nil},
 								{LD, []Operand{&Location{0, 0}}},
 								{LDC, []Operand{1}},
 								{SUB, nil},
+								{NIL, nil},
 								{CONS, nil},
 								{LD, []Operand{&Location{1, 0}}},
 								{DUM, nil},
 								{RAP, nil},
 								{MUL, nil},
 								{JOIN, nil},
-							}),
+							},
 						}},
 						{RTN, nil},
-					}),
+					},
 				}},
 				{DUM, nil},
 				{RAP, nil},

@@ -87,6 +87,14 @@ func TestCompile(t *testing.T) {
 			},
 		},
 		{
+			&Cons{&Symbol{"cons"}, &Cons{1, &Cons{2, nil}}},
+			Code{
+				{LDC, []Operand{1}},
+				{LDC, []Operand{2}},
+				{CONS, nil},
+			},
+		},
+		{
 			&Cons{&Symbol{"null"}, &Cons{nil, nil}},
 			Code{
 				{NIL, nil},
@@ -128,8 +136,8 @@ func TestCompile(t *testing.T) {
 				&Cons{2, nil},
 			},
 			Code{
-				{NIL, nil},
 				{LDC, []Operand{2}},
+				{NIL, nil},
 				{CONS, nil},
 				{LDF, []Operand{
 					Code{

@@ -181,12 +181,13 @@ func (c *Compiler) compileApplication(fn Object, argList Object) error {
 	if improper != nil {
 		return errors.New("arglist must be proper list")
 	}
-	c.pushInsn(NIL, nil)
-	for i := range args {
-		arg := args[len(args)-i-1]
+	for _, arg := range args {
 		if err := c.compile(arg); err != nil {
 			return err
 		}
+	}
+	c.pushInsn(NIL, nil)
+	for range args {
 		c.pushInsn(CONS, nil)
 	}
 	if err := c.compile(fn); err != nil {
