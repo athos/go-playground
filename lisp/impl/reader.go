@@ -43,9 +43,6 @@ func (r *Reader) unread() {
 func (r *Reader) peekRune() (rune, error) {
 	c, err := r.readRune()
 	if err != nil {
-		if err == io.EOF {
-			return 0, io.ErrUnexpectedEOF
-		}
 		return 0, err
 	}
 	r.unread()
@@ -90,8 +87,7 @@ func (r *Reader) skipWhitespaces() error {
 	return r.dropWhile(unicode.IsSpace)
 }
 
-func (r *Reader) readNumber() (Object, error) {
-	var negative bool
+func (r *Reader) readNumber(negative bool) (Object, error) {
 	c, err := r.peekRune()
 	if err != nil {
 		return nil, err
@@ -115,12 +111,29 @@ func (r *Reader) readNumber() (Object, error) {
 }
 
 func (r *Reader) readSymbol() (Object, error) {
+	c, err := r.readRune()
+	if err != nil {
+		return nil, err
+	}
+	if c == '-' {
+		next, err := r.peekRune()
+		if err != nil {
+			if err == io.EOF {
+				return &Symbol{"-"}, nil
+			}
+			return nil, err
+		}
+		if unicode.IsDigit(next) {
+			return r.readNumber(true)
+		}
+	}
 	name, err := r.readWhile(func(c rune) bool {
 		return !delimiters[c] && !unicode.IsSpace(c)
 	})
 	if err != nil {
 		return nil, err
 	}
+	name = string(c) + name
 	switch name {
 	case "t":
 		return true, nil
@@ -129,6 +142,13 @@ func (r *Reader) readSymbol() (Object, error) {
 	default:
 		return &Symbol{name}, nil
 	}
+}
+
+func wrapErr(err error) error {
+	if err == io.EOF {
+		return io.ErrUnexpectedEOF
+	}
+	return err
 }
 
 func (r *Reader) readList() (Object, error) {
@@ -140,7 +160,7 @@ func (r *Reader) readList() (Object, error) {
 		r.skipWhitespaces()
 		c, err := r.peekRune()
 		if err != nil {
-			return nil, err
+			return nil, wrapErr(err)
 		}
 		switch c {
 		case ')':
@@ -176,11 +196,11 @@ func (r *Reader) Read() (Object, error) {
 	}
 	c, err := r.peekRune()
 	if err != nil {
-		return nil, err
+		return nil, wrapErr(err)
 	}
 	switch {
-	case c == '-' || unicode.IsDigit(c):
-		return r.readNumber()
+	case unicode.IsDigit(c):
+		return r.readNumber(false)
 	case c == '(':
 		return r.readList()
 	case c == ')':

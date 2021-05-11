@@ -16,6 +16,8 @@ func TestReadFromString(t *testing.T) {
 		{"42", 42},
 		{"-123", -123},
 		{"foo", &Symbol{"foo"}},
+		{"-", &Symbol{"-"}},
+		{"-foo", &Symbol{"-foo"}},
 		{"(1 . 2)", &Cons{1, 2}},
 		{"(+ 1 2)", &Cons{&Symbol{"+"}, &Cons{1, &Cons{2, nil}}}},
 		{"(1 2 3 . 4)", &Cons{1, &Cons{2, &Cons{3, 4}}}},
