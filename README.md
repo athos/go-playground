@@ -1,6 +1,6 @@
 # go-playground
 
-This repository contains my collection of toy projects to learn Go programming language.
+This repository contains my collection of toy projects to learn Go programming language. It's NOT related to the official [Go Playground](https://play.golang.org/) at all.
 
 ## Projects
 
