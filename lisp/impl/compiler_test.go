@@ -110,36 +110,38 @@ func TestCompile(t *testing.T) {
 				}},
 			},
 		},
-		// {
-		// 	&Cons{
-		// 		&Cons{
-		// 			&Symbol{"lambda"},
-		// 			&Cons{
-		// 				&Cons{&Symbol{"x"}, nil},
-		// 				&Cons{
-		// 					&Cons{
-		// 						&Symbol{"*"},
-		// 						&Cons{&Symbol{"x"}, &Cons{3, nil}},
-		// 					},
-		// 					nil,
-		// 				},
-		// 			},
-		// 		},
-		// 		&Cons{2, nil},
-		// 	},
-		// 	Code{
-		// 		{LDC, []Operand{2}},
-		// 		{LDF, []Operand{
-		// 			Code{
-		// 				{LD, []Operand{&Location{0, 0}}},
-		// 				{LDC, []Operand{3}},
-		// 				{MUL, nil},
-		// 				{RTN, nil},
-		// 			},
-		// 		}},
-		// 		{AP, nil},
-		// 	},
-		// },
+		{
+			&Cons{
+				&Cons{
+					&Symbol{"lambda"},
+					&Cons{
+						&Cons{&Symbol{"x"}, nil},
+						&Cons{
+							&Cons{
+								&Symbol{"*"},
+								&Cons{&Symbol{"x"}, &Cons{3, nil}},
+							},
+							nil,
+						},
+					},
+				},
+				&Cons{2, nil},
+			},
+			Code{
+				{NIL, nil},
+				{LDC, []Operand{2}},
+				{CONS, nil},
+				{LDF, []Operand{
+					Code{
+						{LD, []Operand{&Location{0, 0}}},
+						{LDC, []Operand{3}},
+						{MUL, nil},
+						{RTN, nil},
+					},
+				}},
+				{AP, nil},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(ToString(tt.in), func(t *testing.T) {
