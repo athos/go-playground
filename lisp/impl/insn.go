@@ -6,6 +6,7 @@ const (
 	NIL Op = iota
 	LDC
 	LD
+	SV
 	ATOM
 	NULL
 	CAR

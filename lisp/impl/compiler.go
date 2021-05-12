@@ -81,6 +81,8 @@ func (c *Compiler) compileList(car Object, cdr Object) error {
 			return c.compileOp(1, cdr, ATOM)
 		case "if":
 			return c.compileIf(cdr)
+		case "set!":
+			return c.compileSet(cdr)
 		case "lambda":
 			return c.compileLambda(cdr)
 		default:
@@ -140,6 +142,26 @@ func (c *Compiler) compileIf(argList Object) error {
 	}
 	c2.pushInsn(JOIN, nil)
 	c.pushInsn(SEL, []Operand{Code(c1.insns), Code(c2.insns)})
+	return nil
+}
+
+func (c *Compiler) compileSet(argList Object) error {
+	args, err := c.takeArgs(2, argList)
+	if err != nil {
+		return err
+	}
+	binding, ok := args[0].(*Symbol)
+	if !ok {
+		return errors.New("first argument of set! must be a symbol")
+	}
+	loc := c.cenv[binding.name]
+	if loc == nil {
+		return fmt.Errorf("unknown variable: %s", binding.name)
+	}
+	if err = c.compile(args[1]); err != nil {
+		return err
+	}
+	c.pushInsn(SV, []Operand{&Location{c.level - loc.level, loc.offset}})
 	return nil
 }
 

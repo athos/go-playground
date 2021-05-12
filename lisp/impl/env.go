@@ -21,7 +21,7 @@ func (env *Env) Pop() *Env {
 	return env.next
 }
 
-func (env *Env) Locate(loc *Location) Object {
+func (env *Env) lookup(loc *Location) *Object {
 	for i := 0; i < loc.level; i++ {
 		if env == nil {
 			panic("illegal access to lexical environment")
@@ -32,5 +32,14 @@ func (env *Env) Locate(loc *Location) Object {
 	if loc.offset >= len(frame) {
 		panic("illegal access to lexical environment")
 	}
-	return frame[loc.offset]
+	return &frame[loc.offset]
+}
+
+func (env *Env) Locate(loc *Location) Object {
+	return *env.lookup(loc)
+}
+
+func (env *Env) Update(loc *Location, val Object) {
+	obj := env.lookup(loc)
+	*obj = val
 }
