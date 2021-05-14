@@ -205,6 +205,13 @@ func (r *Reader) Read() (Object, error) {
 		return r.readList()
 	case c == ')':
 		return nil, errors.New("unexpected )")
+	case c == '\'':
+		r.readRune()
+		obj, err := r.Read()
+		if err != nil {
+			return nil, err
+		}
+		return &Cons{&Symbol{"quote"}, &Cons{obj, nil}}, nil
 	default:
 		return r.readSymbol()
 	}

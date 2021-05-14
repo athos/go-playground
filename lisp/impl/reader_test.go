@@ -31,6 +31,8 @@ func TestReadFromString(t *testing.T) {
 				},
 			},
 		},
+		{"'foo", &Cons{&Symbol{"quote"}, &Cons{&Symbol{"foo"}, nil}}},
+		{"'(1 2)", &Cons{&Symbol{"quote"}, &Cons{&Cons{1, &Cons{2, nil}}, nil}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {

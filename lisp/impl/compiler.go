@@ -79,6 +79,8 @@ func (c *Compiler) compileList(car Object, cdr Object) error {
 			return c.compileOp(1, cdr, NULL)
 		case "atom":
 			return c.compileOp(1, cdr, ATOM)
+		case "quote":
+			return c.compileQuote(cdr)
 		case "if":
 			return c.compileIf(cdr)
 		case "set!":
@@ -120,6 +122,15 @@ func (c *Compiler) compileOp(nargs int, argList Object, op Op) error {
 		}
 	}
 	c.pushInsn(op, nil)
+	return nil
+}
+
+func (c *Compiler) compileQuote(argList Object) error {
+	args, err := c.takeArgs(1, argList)
+	if err != nil {
+		return err
+	}
+	c.pushInsn(LDC, []Operand{args[0]})
 	return nil
 }
 

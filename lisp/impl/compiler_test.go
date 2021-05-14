@@ -109,6 +109,12 @@ func TestCompile(t *testing.T) {
 			},
 		},
 		{
+			&Cons{&Symbol{"quote"}, &Cons{&Symbol{"foo"}, nil}},
+			Code{
+				{LDC, []Operand{&Symbol{"foo"}}},
+			},
+		},
+		{
 			&Cons{&Symbol{"if"}, &Cons{true, &Cons{1, &Cons{2, nil}}}},
 			Code{
 				{LDC, []Operand{true}},
