@@ -156,6 +156,53 @@ func TestCompile(t *testing.T) {
 				{AP, nil},
 			},
 		},
+		{
+			&Cons{
+				&Cons{
+					&Symbol{"lambda"},
+					&Cons{
+						&Cons{&Symbol{"x"}, nil},
+						&Cons{
+							&Cons{
+								&Symbol{"set!"},
+								&Cons{
+									&Symbol{"x"},
+									&Cons{
+										&Cons{
+											&Symbol{"+"},
+											&Cons{
+												&Symbol{"x"},
+												&Cons{1, nil},
+											},
+										},
+										nil,
+									},
+								},
+							},
+							&Cons{&Symbol{"x"}, nil},
+						},
+					},
+				},
+				&Cons{42, nil},
+			},
+			[]Insn{
+				{LDC, []Operand{42}},
+				{NIL, nil},
+				{CONS, nil},
+				{LDF, []Operand{
+					Code{
+						{LD, []Operand{&Location{0,0}}},
+						{LDC, []Operand{1}},
+						{ADD, nil},
+						{SV, []Operand{&Location{0,0}}},
+						{POP, nil},
+						{LD, []Operand{&Location{0,0}}},
+						{RTN, nil},
+					},
+				}},
+				{AP, nil},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(ToString(tt.in), func(t *testing.T) {

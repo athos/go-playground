@@ -108,6 +108,9 @@ func (vm *VM) Run() (Object, error) {
 			loc := insn.operands[0].(*Location)
 			obj := vm.pop()
 			vm.env.Update(loc, obj)
+			vm.push(obj)
+		case POP:
+			vm.pop()
 		case ATOM:
 			obj := vm.pop()
 			vm.push(FromBool(IsAtom(obj)))

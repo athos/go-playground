@@ -85,6 +85,8 @@ func (c *Compiler) compileList(car Object, cdr Object) error {
 			return c.compileIf(cdr)
 		case "set!":
 			return c.compileSet(cdr)
+		case "begin":
+			return c.compileBegin(cdr)
 		case "lambda":
 			return c.compileLambda(cdr)
 		default:
@@ -176,10 +178,30 @@ func (c *Compiler) compileSet(argList Object) error {
 	return nil
 }
 
+func (c *Compiler) compileExprs(exprs []Object) error {
+	for i, expr := range exprs {
+		if err := c.compile(expr); err != nil {
+			return err
+		}
+		if i < len(exprs)-1 {
+			c.pushInsn(POP, nil)
+		}
+	}
+	return nil
+}
+
+func (c *Compiler) compileBegin(argList Object) error {
+	exprs, improper, err := ListToSlice(argList)
+	if improper != nil || err != nil {
+		return errors.New("arglist must be proper list")
+	}
+	return c.compileExprs(exprs)
+}
+
 func (c *Compiler) compileLambda(argList Object) error {
-	args, err := c.takeArgs(2, argList)
-	if err != nil {
-		return err
+	args, improper, err := ListToSlice(argList)
+	if improper != nil || err != nil {
+		return errors.New("arglist must be proper list")
 	}
 	cbody := c.clone()
 	cbody.level++
@@ -195,7 +217,7 @@ func (c *Compiler) compileLambda(argList Object) error {
 			return errors.New("fn argument must be symbol")
 		}
 	}
-	if err := cbody.compile(args[1]); err != nil {
+	if err := cbody.compileExprs(args[1:]); err != nil {
 		return err
 	}
 	cbody.pushInsn(RTN, nil)
