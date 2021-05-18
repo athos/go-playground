@@ -15,24 +15,24 @@ func TestReadFromString(t *testing.T) {
 		{"t", true},
 		{"42", 42},
 		{"-123", -123},
-		{"foo", &Symbol{"foo"}},
-		{"-", &Symbol{"-"}},
-		{"-foo", &Symbol{"-foo"}},
+		{"foo", Intern("foo")},
+		{"-", Intern("-")},
+		{"-foo", Intern("-foo")},
 		{"(1 . 2)", &Cons{1, 2}},
-		{"(+ 1 2)", &Cons{&Symbol{"+"}, &Cons{1, &Cons{2, nil}}}},
+		{"(+ 1 2)", &Cons{Intern("+"), &Cons{1, &Cons{2, nil}}}},
 		{"(1 2 3 . 4)", &Cons{1, &Cons{2, &Cons{3, 4}}}},
 		{
 			"(+ (* 3 3) (* 4 4))",
 			&Cons{
-				&Symbol{"+"},
+				Intern("+"),
 				&Cons{
-					&Cons{&Symbol{"*"}, &Cons{3, &Cons{3, nil}}},
-					&Cons{&Cons{&Symbol{"*"}, &Cons{4, &Cons{4, nil}}}, nil},
+					&Cons{Intern("*"), &Cons{3, &Cons{3, nil}}},
+					&Cons{&Cons{Intern("*"), &Cons{4, &Cons{4, nil}}}, nil},
 				},
 			},
 		},
-		{"'foo", &Cons{&Symbol{"quote"}, &Cons{&Symbol{"foo"}, nil}}},
-		{"'(1 2)", &Cons{&Symbol{"quote"}, &Cons{&Cons{1, &Cons{2, nil}}, nil}}},
+		{"'foo", &Cons{Intern("quote"), &Cons{Intern("foo"), nil}}},
+		{"'(1 2)", &Cons{Intern("quote"), &Cons{&Cons{1, &Cons{2, nil}}, nil}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {

@@ -119,7 +119,7 @@ func (r *Reader) readSymbol() (Object, error) {
 		next, err := r.peekRune()
 		if err != nil {
 			if err == io.EOF {
-				return &Symbol{"-"}, nil
+				return Intern("-"), nil
 			}
 			return nil, err
 		}
@@ -140,7 +140,7 @@ func (r *Reader) readSymbol() (Object, error) {
 	case "nil":
 		return nil, nil
 	default:
-		return &Symbol{name}, nil
+		return Intern(name), nil
 	}
 }
 
@@ -211,7 +211,7 @@ func (r *Reader) Read() (Object, error) {
 		if err != nil {
 			return nil, err
 		}
-		return &Cons{&Symbol{"quote"}, &Cons{obj, nil}}, nil
+		return &Cons{Intern("quote"), &Cons{obj, nil}}, nil
 	default:
 		return r.readSymbol()
 	}

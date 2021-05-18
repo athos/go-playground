@@ -47,14 +47,14 @@ func TestToString(t *testing.T) {
 		{nil, "nil"},
 		{true, "t"},
 		{42, "42"},
-		{&Symbol{"foo"}, "foo"},
-		{&Cons{&Symbol{"+"}, &Cons{1, &Cons{2, nil}}}, "(+ 1 2)"},
+		{Intern("foo"), "foo"},
+		{&Cons{Intern("+"), &Cons{1, &Cons{2, nil}}}, "(+ 1 2)"},
 		{
 			&Cons{
-				&Symbol{"+"},
+				Intern("+"),
 				&Cons{
-					&Cons{&Symbol{"*"}, &Cons{3, &Cons{3, nil}}},
-					&Cons{&Cons{&Symbol{"*"}, &Cons{4, &Cons{4, nil}}}, nil},
+					&Cons{Intern("*"), &Cons{3, &Cons{3, nil}}},
+					&Cons{&Cons{Intern("*"), &Cons{4, &Cons{4, nil}}}, nil},
 				},
 			},
 			"(+ (* 3 3) (* 4 4))",

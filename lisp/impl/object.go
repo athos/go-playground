@@ -8,9 +8,6 @@ import (
 )
 
 type Object interface{}
-type Symbol struct {
-	name string
-}
 type Cons struct {
 	car Object
 	cdr Object

@@ -15,7 +15,7 @@ func TestCompile(t *testing.T) {
 		{true, Code{{LDC, []Operand{true}}}},
 		{42, Code{{LDC, []Operand{42}}}},
 		{
-			&Cons{&Symbol{"+"}, &Cons{1, &Cons{2, nil}}},
+			&Cons{Intern("+"), &Cons{1, &Cons{2, nil}}},
 			Code{
 				{LDC, []Operand{1}},
 				{LDC, []Operand{2}},
@@ -23,7 +23,7 @@ func TestCompile(t *testing.T) {
 			},
 		},
 		{
-			&Cons{&Symbol{"-"}, &Cons{5, &Cons{3, nil}}},
+			&Cons{Intern("-"), &Cons{5, &Cons{3, nil}}},
 			Code{
 				{LDC, []Operand{5}},
 				{LDC, []Operand{3}},
@@ -31,7 +31,7 @@ func TestCompile(t *testing.T) {
 			},
 		},
 		{
-			&Cons{&Symbol{"*"}, &Cons{2, &Cons{3, nil}}},
+			&Cons{Intern("*"), &Cons{2, &Cons{3, nil}}},
 			Code{
 				{LDC, []Operand{2}},
 				{LDC, []Operand{3}},
@@ -39,7 +39,7 @@ func TestCompile(t *testing.T) {
 			},
 		},
 		{
-			&Cons{&Symbol{"/"}, &Cons{8, &Cons{2, nil}}},
+			&Cons{Intern("/"), &Cons{8, &Cons{2, nil}}},
 			Code{
 				{LDC, []Operand{8}},
 				{LDC, []Operand{2}},
@@ -47,7 +47,7 @@ func TestCompile(t *testing.T) {
 			},
 		},
 		{
-			&Cons{&Symbol{"="}, &Cons{1, &Cons{2, nil}}},
+			&Cons{Intern("="), &Cons{1, &Cons{2, nil}}},
 			Code{
 				{LDC, []Operand{1}},
 				{LDC, []Operand{2}},
@@ -55,7 +55,7 @@ func TestCompile(t *testing.T) {
 			},
 		},
 		{
-			&Cons{&Symbol{"<"}, &Cons{1, &Cons{2, nil}}},
+			&Cons{Intern("<"), &Cons{1, &Cons{2, nil}}},
 			Code{
 				{LDC, []Operand{1}},
 				{LDC, []Operand{2}},
@@ -63,7 +63,7 @@ func TestCompile(t *testing.T) {
 			},
 		},
 		{
-			&Cons{&Symbol{">"}, &Cons{1, &Cons{2, nil}}},
+			&Cons{Intern(">"), &Cons{1, &Cons{2, nil}}},
 			Code{
 				{LDC, []Operand{1}},
 				{LDC, []Operand{2}},
@@ -71,7 +71,7 @@ func TestCompile(t *testing.T) {
 			},
 		},
 		{
-			&Cons{&Symbol{"<="}, &Cons{1, &Cons{2, nil}}},
+			&Cons{Intern("<="), &Cons{1, &Cons{2, nil}}},
 			Code{
 				{LDC, []Operand{1}},
 				{LDC, []Operand{2}},
@@ -79,7 +79,7 @@ func TestCompile(t *testing.T) {
 			},
 		},
 		{
-			&Cons{&Symbol{">="}, &Cons{1, &Cons{2, nil}}},
+			&Cons{Intern(">="), &Cons{1, &Cons{2, nil}}},
 			Code{
 				{LDC, []Operand{1}},
 				{LDC, []Operand{2}},
@@ -87,7 +87,7 @@ func TestCompile(t *testing.T) {
 			},
 		},
 		{
-			&Cons{&Symbol{"cons"}, &Cons{1, &Cons{2, nil}}},
+			&Cons{Intern("cons"), &Cons{1, &Cons{2, nil}}},
 			Code{
 				{LDC, []Operand{1}},
 				{LDC, []Operand{2}},
@@ -95,27 +95,27 @@ func TestCompile(t *testing.T) {
 			},
 		},
 		{
-			&Cons{&Symbol{"null"}, &Cons{nil, nil}},
+			&Cons{Intern("null"), &Cons{nil, nil}},
 			Code{
 				{NIL, nil},
 				{NULL, nil},
 			},
 		},
 		{
-			&Cons{&Symbol{"atom"}, &Cons{true, nil}},
+			&Cons{Intern("atom"), &Cons{true, nil}},
 			Code{
 				{LDC, []Operand{true}},
 				{ATOM, nil},
 			},
 		},
 		{
-			&Cons{&Symbol{"quote"}, &Cons{&Symbol{"foo"}, nil}},
+			&Cons{Intern("quote"), &Cons{Intern("foo"), nil}},
 			Code{
-				{LDC, []Operand{&Symbol{"foo"}}},
+				{LDC, []Operand{Intern("foo")}},
 			},
 		},
 		{
-			&Cons{&Symbol{"if"}, &Cons{true, &Cons{1, &Cons{2, nil}}}},
+			&Cons{Intern("if"), &Cons{true, &Cons{1, &Cons{2, nil}}}},
 			Code{
 				{LDC, []Operand{true}},
 				{SEL, []Operand{
@@ -127,13 +127,13 @@ func TestCompile(t *testing.T) {
 		{
 			&Cons{
 				&Cons{
-					&Symbol{"lambda"},
+					Intern("lambda"),
 					&Cons{
-						&Cons{&Symbol{"x"}, nil},
+						&Cons{Intern("x"), nil},
 						&Cons{
 							&Cons{
-								&Symbol{"*"},
-								&Cons{&Symbol{"x"}, &Cons{3, nil}},
+								Intern("*"),
+								&Cons{Intern("x"), &Cons{3, nil}},
 							},
 							nil,
 						},
@@ -159,19 +159,19 @@ func TestCompile(t *testing.T) {
 		{
 			&Cons{
 				&Cons{
-					&Symbol{"lambda"},
+					Intern("lambda"),
 					&Cons{
-						&Cons{&Symbol{"x"}, nil},
+						&Cons{Intern("x"), nil},
 						&Cons{
 							&Cons{
-								&Symbol{"set!"},
+								Intern("set!"),
 								&Cons{
-									&Symbol{"x"},
+									Intern("x"),
 									&Cons{
 										&Cons{
-											&Symbol{"+"},
+											Intern("+"),
 											&Cons{
-												&Symbol{"x"},
+												Intern("x"),
 												&Cons{1, nil},
 											},
 										},
@@ -179,7 +179,7 @@ func TestCompile(t *testing.T) {
 									},
 								},
 							},
-							&Cons{&Symbol{"x"}, nil},
+							&Cons{Intern("x"), nil},
 						},
 					},
 				},
