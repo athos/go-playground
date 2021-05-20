@@ -6,7 +6,9 @@ const (
 	NIL Op = iota
 	LDC
 	LD
+	LDG
 	SV
+	SVG
 	POP
 	ATOM
 	NULL

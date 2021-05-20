@@ -104,10 +104,18 @@ func (vm *VM) Run() (Object, error) {
 		case LD:
 			loc := insn.operands[0].(*Location)
 			vm.push(vm.env.Locate(loc))
+		case LDG:
+			sym := insn.operands[0].(*Symbol)
+			vm.push(sym.value)
 		case SV:
 			loc := insn.operands[0].(*Location)
 			obj := vm.pop()
 			vm.env.Update(loc, obj)
+			vm.push(obj)
+		case SVG:
+			sym := insn.operands[0].(*Symbol)
+			obj := vm.pop()
+			sym.SetValue(obj)
 			vm.push(obj)
 		case POP:
 			vm.pop()

@@ -38,9 +38,10 @@ func (c *Compiler) compile(expr Object) error {
 	case *Symbol:
 		loc := c.cenv[e.name]
 		if loc == nil {
-			return fmt.Errorf("unknown variable: %s", e.name)
+			c.pushInsn(LDG, []Operand{e})
+		} else {
+			c.pushInsn(LD, []Operand{&Location{c.level - loc.level, loc.offset}})
 		}
-		c.pushInsn(LD, []Operand{&Location{c.level - loc.level, loc.offset}})
 	case *Cons:
 		return c.compileList(e.car, e.cdr)
 	}
@@ -89,6 +90,8 @@ func (c *Compiler) compileList(car Object, cdr Object) error {
 			return c.compileBegin(cdr)
 		case "lambda":
 			return c.compileLambda(cdr)
+		case "define":
+			return c.compileSet(cdr)
 		default:
 			return c.compileApplication(car, cdr)
 		}
@@ -167,12 +170,13 @@ func (c *Compiler) compileSet(argList Object) error {
 	if !ok {
 		return errors.New("first argument of set! must be a symbol")
 	}
-	loc := c.cenv[binding.name]
-	if loc == nil {
-		return fmt.Errorf("unknown variable: %s", binding.name)
-	}
 	if err = c.compile(args[1]); err != nil {
 		return err
+	}
+	loc := c.cenv[binding.name]
+	if loc == nil {
+		c.pushInsn(SVG, []Operand{binding})
+		return nil
 	}
 	c.pushInsn(SV, []Operand{&Location{c.level - loc.level, loc.offset}})
 	return nil
